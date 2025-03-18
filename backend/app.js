@@ -23,6 +23,7 @@ console.log(__dirname);
 
 const uploadsPath = join(__dirname, "uploads");
 app.use("/uploads", express.static(uploadsPath));
+app.use(cors());
 
 app.get("/", (req, res, next) => {
   res.send("request send");
@@ -58,6 +59,7 @@ app.post("/uploads", (req, res, next) => {
         image: req.file.path.replace(/\\/g, "/"),
       });
       res.status(200).json({
+        id: image._id,
         title: image.title,
         description: image.description,
         imageUrl: `http://localhost:4000/${image.image}`,
@@ -66,6 +68,35 @@ app.post("/uploads", (req, res, next) => {
       res.status(500).send(error);
     }
   });
+});
+
+// GET IMAGES
+app.get("/images", async (req, res, next) => {
+  const images = await Image.find({});
+  if (images) {
+    const response = images.map((image) => ({
+      id: image._id,
+      title: image.title,
+      description: image.description,
+      imageUrl: `http://localhost:5000/${image.image}`,
+    }));
+    res.send(response);
+  }
+});
+
+// DELETE image
+app.delete("/image/:id", async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    const image = await Image.findByIdAndDelete(id);
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+    fs.unlinkSync(image.image);
+    return res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: "Something Went Wrong" });
+  }
 });
 
 app.listen(PORT, () => console.log("Server started"));
