@@ -7,10 +7,22 @@ import Image from "./model/Image.js";
 import upload from "./multerconfig.js";
 import fs from "fs";
 
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { log } from "console";
+
 dotenv.config();
 connectDB();
 const app = express();
 const PORT = 4000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+console.log(__dirname);
+
+const uploadsPath = join(__dirname, "uploads");
+app.use("/uploads", express.static(uploadsPath));
 
 app.get("/", (req, res, next) => {
   res.send("request send");
@@ -48,7 +60,7 @@ app.post("/uploads", (req, res, next) => {
       res.status(200).json({
         title: image.title,
         description: image.description,
-        imageUrl: image.image,
+        imageUrl: `http://localhost:4000/${image.image}`,
       });
     } catch (error) {
       res.status(500).send(error);
