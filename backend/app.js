@@ -78,7 +78,7 @@ app.get("/images", async (req, res, next) => {
       id: image._id,
       title: image.title,
       description: image.description,
-      imageUrl: `http://localhost:5000/${image.image}`,
+      imageUrl: `http://localhost:4000/${image.image}`,
     }));
     res.send(response);
   }
